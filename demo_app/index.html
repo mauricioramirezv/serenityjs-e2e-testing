@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Serenity Shop</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+    form, section { border: 1px solid #ccd5e0; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; }
+    label { display: block; margin: .6rem 0; }
+    input, select, button { font: inherit; padding: .55rem; }
+    .products { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .8rem; }
+    article { border: 1px solid #ccd5e0; border-radius: 8px; padding: .8rem; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <h1>Serenity Shop</h1>
+  <form id="login-form" aria-label="Inicio de sesión">
+    <h2>Ingreso</h2>
+    <label>Usuario <input id="username" autocomplete="username"></label>
+    <label>Contraseña <input id="password" type="password" autocomplete="current-password"></label>
+    <button id="login-button" type="submit">Ingresar</button>
+    <p id="login-message" role="status"></p>
+  </form>
+  <main id="catalog" hidden>
+    <section aria-label="Filtros del catálogo">
+      <label>Buscar <input id="search" placeholder="Nombre del producto"></label>
+      <label>Categoría
+        <select id="category">
+          <option value="all">Todas</option>
+          <option value="books">Libros</option>
+          <option value="courses">Cursos</option>
+        </select>
+      </label>
+      <p>Carrito: <strong id="cart-count">0</strong></p>
+    </section>
+    <section class="products" aria-label="Productos">
+      <article class="product" data-name="Clean Code" data-category="books"><h3>Clean Code</h3><button data-add="Clean Code">Agregar</button></article>
+      <article class="product" data-name="Testing TypeScript" data-category="books"><h3>Testing TypeScript</h3><button data-add="Testing TypeScript">Agregar</button></article>
+      <article class="product" data-name="Curso Screenplay" data-category="courses"><h3>Curso Screenplay</h3><button data-add="Curso Screenplay">Agregar</button></article>
+    </section>
+  </main>
+  <script>
+    const username = document.querySelector('#username');
+    const password = document.querySelector('#password');
+    const message = document.querySelector('#login-message');
+    const catalog = document.querySelector('#catalog');
+    const search = document.querySelector('#search');
+    const category = document.querySelector('#category');
+    const products = [...document.querySelectorAll('.product')];
+    const cartCount = document.querySelector('#cart-count');
+
+    document.querySelector('#login-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const valid = username.value === 'estudiante' && password.value === 'screenplay';
+      message.textContent = valid ? 'Inicio de sesión exitoso' : 'Credenciales inválidas';
+      catalog.hidden = !valid;
+    });
+    function filterProducts() {
+      const term = search.value.toLowerCase();
+      products.forEach(product => {
+        const byText = product.dataset.name.toLowerCase().includes(term);
+        const byCategory = category.value === 'all' || product.dataset.category === category.value;
+        product.hidden = !(byText && byCategory);
+      });
+    }
+    search.addEventListener('input', filterProducts);
+    category.addEventListener('change', filterProducts);
+    document.addEventListener('click', event => {
+      if (event.target.matches('[data-add]')) {
+        cartCount.textContent = String(Number(cartCount.textContent) + 1);
+      }
+    });
+  </script>
+</body>
+</html>
+
