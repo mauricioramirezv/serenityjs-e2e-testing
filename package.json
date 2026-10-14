@@ -10,7 +10,9 @@
     "test:smoke": "npm test -- --tags '@smoke'",
     "test:web": "npm test -- --tags '@web'",
     "test:api": "cross-env SERENITY_API_ONLY=true npm test -- --tags '@api'",
-    "test:report": "html-reporter serve --dir reports/serenity-js --port 8080 --open"
+    "test:report": "html-reporter serve --dir reports/serenity-js --port 8080 --open",
+    "test:clase": "npm test -- --tags \"@clase\"",
+    "test:gherkin": "cucumber-js --dry-run --format progress"
   },
   "engines": {
     "node": "^22.22.2 || ^24.15.0"

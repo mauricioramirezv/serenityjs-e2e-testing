@@ -1,139 +1,171 @@
-# Pruebas E2E con Serenity/JS, Playwright y Cucumber
+# Pruebas con Gherkin, Cucumber y Serenity/JS
 
-Proyecto educativo avanzado que implementa el patrón Screenplay para pruebas
-web y API. Incluye una aplicación local, reporte Serenity/JS, escenarios
-Gherkin, etiquetas, TypeScript estricto y ejecución continua.
+Proyecto educativo para describir comportamientos con **Gherkin** y automatizar pruebas web y API con **Cucumber, Serenity/JS, Playwright y TypeScript**.
 
-## Arquitectura
+Incluye una aplicación local llamada **Serenity Shop**. La aplicación se inicia y se detiene automáticamente durante las pruebas.
 
-| Componente | Responsabilidad | Ubicación |
-|---|---|---|
-| Actor y abilities | Navegación web y llamadas HTTP | `features/support/serenity.config.ts` |
-| Features | Comportamiento en lenguaje Gherkin | `features/*.feature` |
-| Step definitions | Conectan Gherkin con Screenplay | `features/step-definitions/` |
-| Tasks | Objetivos de negocio reutilizables | `test/tasks/` |
-| Questions | Información consultada por el actor | `test/questions/` |
-| Lean Page Objects | Elementos y selectores | `test/ui/` |
-| Sistema de prueba | Aplicación web y API locales | `demo_app/`, `test/support/` |
+## 1. Requisitos
 
-Los steps no contienen selectores ni llamadas directas a Playwright. Toda la
-automatización se expresa mediante actores, tareas, interacciones y preguntas.
-
-## Requisitos
-
-- Node.js 22.22.2 o 24.15.0 en adelante dentro de esas ramas.
+- Node.js **22.22.2** o una versión de la rama **24 desde 24.15.0**.
 - npm.
+- Visual Studio Code recomendado.
 
-## Instalación
-
-En PowerShell, desde la raíz:
+Compruebe las versiones:
 
 ```powershell
-npm install
+node --version
+npm --version
+```
+
+## 2. Instalación
+
+Abra la carpeta del proyecto en Visual Studio Code y ejecute desde su terminal:
+
+```powershell
+npm ci
 npx playwright install chromium
 ```
 
-Si Playwright solicita componentes del sistema en Linux:
+Los comandos deben ejecutarse en la carpeta que contiene `package.json`.
 
-```bash
-npx playwright install --with-deps chromium
-```
+## 3. Primera ejecución
 
-## Ejecutar las pruebas
-
-Todas las pruebas web y API:
-
-```powershell
-npm test
-```
-
-Solo el conjunto rápido:
-
-```powershell
-npm run test:smoke
-```
-
-Solo pruebas web:
-
-```powershell
-npm run test:web
-```
-
-Solo pruebas API:
-
-```powershell
-npm run test:api
-```
-
-Una característica:
-
-```powershell
-npm test -- features/authentication.feature
-```
-
-Un escenario por nombre:
-
-```powershell
-npm test -- --name "Agregar un producto al carrito"
-```
-
-Mostrar el navegador:
-
-```powershell
-$env:HEADLESS = "false"
-npm run test:web
-Remove-Item Env:HEADLESS
-```
-
-Validar TypeScript sin ejecutar las pruebas:
+Compruebe el código y la definición de los escenarios:
 
 ```powershell
 npm run typecheck
+npm run test:gherkin
 ```
 
-## Reporte
+Después ejecute los ejemplos de clase:
 
-Cada ejecución genera el reporte en:
-
-```text
-reports/serenity-js/index.html
+```powershell
+npm run test:clase
 ```
 
-Para servirlo localmente:
+**Importante:** `test:gherkin` realiza una comprobación sin ejecutar las pruebas. Que muestre `skipped` es normal y no significa que la aplicación haya sido validada.
+
+## 4. Ejemplos incluidos
+
+| Archivo en `features/` | Qué permite practicar |
+|---|---|
+| `elementos.feature` | Comprobar que los campos y el botón están visibles. |
+| `authentication.feature` | Login correcto e incorrecto con escenarios simples. |
+| `autenticacion_parametrizada.feature` | Login válido, usuario inválido y contraseña inválida mediante una tabla de ejemplos. |
+| `busqueda_sin_resultados.feature` | Buscar un producto inexistente y verificar una lista vacía. |
+| `catalog.feature` | Buscar, filtrar y agregar productos al carrito. |
+| `api.feature` | Validar el estado HTTP y los datos de una respuesta. |
+
+Las credenciales de demostración son:
+
+- **Usuario:** `estudiante`
+- **Contraseña:** `screenplay`
+
+Son datos ficticios para esta práctica.
+
+## 5. Cómo leer Gherkin
+
+Los archivos en español comienzan con:
+
+```gherkin
+# language: es
+```
+
+Cada palabra clave tiene una función:
+
+| Palabra clave | Función |
+|---|---|
+| `Característica` | Agrupa comportamientos de una funcionalidad. |
+| `Escenario` | Describe un caso concreto. |
+| `Dado` | Establece el contexto inicial. |
+| `Cuando` | Describe la acción. |
+| `Entonces` | Define el resultado esperado. |
+| `Y` | Añade otro paso o comprobación. |
+| `Antecedentes` | Prepara un contexto común antes de cada escenario. |
+| `Esquema del escenario` | Define un caso parametrizado. |
+| `Ejemplos` | Proporciona una fila de datos por ejecución. |
+
+Ejemplo:
+
+```gherkin
+# language: es
+Característica: Autenticación
+
+  Escenario: Iniciar sesión con datos válidos
+    Dado Alicia abre la aplicación
+    Cuando ella inicia sesión con usuario "estudiante" y contraseña "screenplay"
+    Entonces ella observa el mensaje "Inicio de sesión exitoso"
+    Y ella observa el catálogo "visible"
+```
+
+**Una prueba negativa pasa cuando confirma el rechazo esperado.** Por ejemplo, una contraseña incorrecta debe producir un mensaje de error y mantener oculto el catálogo.
+
+## 6. Comandos de ejecución
+
+| Objetivo | Comando |
+|---|---|
+| Todos los escenarios | `npm test` |
+| Cinco casos nuevos de clase | `npm run test:clase` |
+| Pruebas web | `npm run test:web` |
+| Pruebas API | `npm run test:api` |
+| Escenarios etiquetados como `@smoke` | `npm run test:smoke` |
+| Comprobar TypeScript | `npm run typecheck` |
+| Comprobar Gherkin sin ejecutar | `npm run test:gherkin` |
+| Abrir el reporte | `npm run test:report` |
+
+Para ejecutar un archivo:
+
+```powershell
+npm test -- features/autenticacion_parametrizada.feature
+```
+
+Para mostrar el navegador durante las pruebas en PowerShell:
+
+```powershell
+$env:HEADLESS = "false"
+npm run test:clase
+Remove-Item Env:HEADLESS
+```
+
+## 7. Organización del proyecto
+
+| Carpeta | Contenido |
+|---|---|
+| `features/` | Escenarios Gherkin. |
+| `features/step-definitions/` | Código que implementa los pasos. |
+| `features/support/` | Configuración de actores, navegador y servidor. |
+| `test/tasks/` | Tareas como iniciar sesión o buscar productos. |
+| `test/questions/` | Consultas sobre el estado de la aplicación. |
+| `test/ui/` | Elementos y selectores de la interfaz. |
+| `demo_app/` | Aplicación de demostración. |
+| `ejercicios/` | Guías y actividades. |
+
+Para comprender un ejemplo, siga este orden: **escenario, definición del paso, tarea y comprobación del resultado**.
+
+## 8. Resultados y actividad
+
+Después de ejecutar las pruebas:
 
 ```powershell
 npm run test:report
 ```
 
-Luego visite `http://localhost:8080`.
+El reporte permite revisar escenarios, acciones y resultados. Un caso aprobado confirma las comprobaciones definidas en ese caso.
 
-## Escenarios incluidos
+Actividad:
 
-- autenticación correcta e incorrecta;
-- búsqueda y filtrado del catálogo;
-- adición de productos al carrito;
-- consulta completa de productos mediante API;
-- filtrado de productos mediante parámetros HTTP;
-- validación de estado y cuerpo JSON.
+1. Ejecute el ejemplo de elementos y el de autenticación.
+2. Identifique el contexto, la acción y el resultado esperado.
+3. Agregue una fila a la tabla de ejemplos.
+4. Cambie temporalmente un resultado esperado para provocar un fallo.
+5. Explique la causa y restaure el valor correcto.
 
-## Ruta sugerida para la clase
+Entregue el archivo modificado y evidencias de un caso aprobado y otro fallido.
 
-1. Lea primero los archivos `.feature`.
-2. Identifique al actor y sus abilities.
-3. Siga un step hasta una Task.
-4. Diferencie Tasks, Interactions, Questions y Lean Page Objects.
-5. Compare un escenario web con uno API.
-6. Ejecute las etiquetas y revise el reporte.
-7. Resuelva `ejercicios/README.md`.
+## 9. Problemas frecuentes
 
-## Buenas prácticas aplicadas
-
-- aplicación y API locales para evitar pruebas frágiles;
-- steps sin selectores ni lógica de automatización;
-- credenciales ficticias y contraseña enmascarada;
-- tareas pequeñas, reutilizables y con lenguaje del dominio;
-- pruebas web y API bajo el mismo modelo de actores;
-- reportes oficiales de Serenity/JS;
-- TypeScript estricto y pipeline de GitHub Actions;
-- exclusión de `node_modules`, navegadores y reportes generados.
-
+- **No encuentra `package.json`:** abra la terminal en la carpeta raíz del proyecto.
+- **No encuentra Chromium:** ejecute `npx playwright install chromium`.
+- **Paso indefinido:** revise que el texto coincida con una definición de pasos.
+- **Falla una aserción:** compare el resultado esperado con el obtenido.
+- **Error de sintaxis:** use dos puntos después de `Característica` y `Escenario`, pero no después de `Dado`, `Cuando` o `Entonces`.
